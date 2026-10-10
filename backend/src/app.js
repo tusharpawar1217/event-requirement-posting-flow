@@ -29,6 +29,20 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Event Requirement Posting API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/v1/health',
+      requirements: '/api/v1/requirements',
+      documentation: 'https://github.com/tusharpawar1217/event-requirement-posting-flow'
+    }
+  });
+});
+
 // API routes
 app.use('/api/v1', routes);
 
