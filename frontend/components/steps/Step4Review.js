@@ -37,10 +37,32 @@ export default function Step4Review({ onBack, onEditStep }) {
         payload.endDate = new Date(payload.endDate).toISOString();
       }
 
+      console.log('Submitting to:', process.env.NEXT_PUBLIC_API_URL);
+      console.log('Payload:', payload);
+
       const response = await createRequirement(payload);
+      console.log('Success response:', response);
       setSuccess(response.data);
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Failed to submit requirement');
+      console.error('Submission error:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      
+      let errorMessage = 'Failed to submit requirement';
+      
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        errorMessage = 'Request timeout - backend may be sleeping (cold start). Please try again in 30 seconds.';
+      } else if (err.response?.data?.error?.message) {
+        errorMessage = err.response.data.error.message;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      } else if (!process.env.NEXT_PUBLIC_API_URL) {
+        errorMessage = 'API URL not configured. Please check environment variables.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
