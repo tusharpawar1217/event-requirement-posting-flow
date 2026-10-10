@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function BrowsePage() {
+function BrowseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const category = searchParams.get("category") || "planner";
@@ -17,10 +17,6 @@ export default function BrowsePage() {
     performer: { name: "Performers", icon: "🎤", color: "moonstone" },
     crew: { name: "Crew Members", icon: "👷", color: "starlit" }
   };
-
-  useEffect(() => {
-    fetchRequirements();
-  }, [category]);
 
   const fetchRequirements = async () => {
     setLoading(true);
@@ -38,6 +34,11 @@ export default function BrowsePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchRequirements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -184,5 +185,17 @@ export default function BrowsePage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-starlit border-t-transparent"></div>
+      </div>
+    }>
+      <BrowseContent />
+    </Suspense>
   );
 }
