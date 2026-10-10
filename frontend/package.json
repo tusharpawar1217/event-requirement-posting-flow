@@ -1,0 +1,31 @@
+{
+  "name": "requirement-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "next": "14.2.15",
+    "react-hook-form": "7.53.0",
+    "@hookform/resolvers": "3.9.0",
+    "zod": "3.23.8",
+    "zustand": "4.5.5",
+    "axios": "1.7.7"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.14",
+    "postcss": "8.4.47",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.15"
+  }
+}
