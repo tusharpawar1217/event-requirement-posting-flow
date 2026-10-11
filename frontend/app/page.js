@@ -1,6 +1,11 @@
+'use client';
+
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 relative">
       {/* Cosmic stars effect */}
@@ -28,12 +33,41 @@ export default function Home() {
           Post your event requirements for planners, performers, or crew members with our easy-to-use wizard
         </p>
         
-        <Link
-          href="/post"
-          className="btn-primary inline-block"
-        >
-          Post a Requirement
-        </Link>
+        {!loading && (
+          <div className="flex gap-4 justify-center items-center">
+            {user ? (
+              <>
+                <Link
+                  href="/post"
+                  className="btn-primary inline-block"
+                >
+                  Post a Requirement
+                </Link>
+                <Link
+                  href="/browse"
+                  className="px-6 py-3 rounded-lg font-semibold border-2 border-starlit/30 text-starlit hover:bg-starlit/10 transition-all duration-300"
+                >
+                  Browse Requirements
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="btn-primary inline-block"
+                >
+                  Get Started
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-6 py-3 rounded-lg font-semibold border-2 border-starlit/30 text-starlit hover:bg-starlit/10 transition-all duration-300"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
+          </div>
+        )}
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           <Link href="/browse?category=planner" className="card p-6 hover:shadow-2xl hover:border-starlit/50 transition-all duration-300 group cursor-pointer">

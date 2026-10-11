@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useWizardStore from '@/store/wizardStore';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import Stepper from '@/components/wizard/Stepper';
 import Step1Basics from '@/components/steps/Step1Basics';
 import Step2Planner from '@/components/steps/Step2Planner';
@@ -57,7 +58,8 @@ export default function PostRequirement() {
   const Step3Component = category ? STEP3_COMPONENTS[category] : null;
 
   return (
-    <main className="min-h-screen py-12 px-4 relative">
+    <ProtectedRoute requiredRole={['client', 'admin']}>
+      <main className="min-h-screen py-12 px-4 relative">
       {/* Cosmic background effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-1 h-1 bg-starlit rounded-full top-[10%] left-[10%] animate-pulse"></div>
@@ -97,5 +99,6 @@ export default function PostRequirement() {
         </div>
       </div>
     </main>
+    </ProtectedRoute>
   );
 }

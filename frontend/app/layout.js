@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
+import Navbar from "@/components/Navbar";
 
 export const metadata = {
   title: "Requirement Posting Flow",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
+          <Navbar />
           {children}
           <Toaster
             position="top-right"
