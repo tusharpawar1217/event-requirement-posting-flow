@@ -58,7 +58,7 @@ export default function PostRequirement() {
   const Step3Component = category ? STEP3_COMPONENTS[category] : null;
 
   return (
-    <ProtectedRoute requiredRole={['client', 'admin']}>
+    <ProtectedRoute roles={['client', 'admin']}>
       <main className="min-h-screen py-12 px-4 relative">
       {/* Cosmic background effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

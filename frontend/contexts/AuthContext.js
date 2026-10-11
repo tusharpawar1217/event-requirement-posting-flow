@@ -1,69 +1,70 @@
 "use client";
-import { createContext, useContext } from 'react';
-import useSWR from 'swr';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { createContext, useContext, useEffect, useCallback } from "react";
+import useSWR from "swr";
+import api from "@/lib/api";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Fetcher for SWR
-const fetcher = async (url) => {
+// 401 on /auth/me means "not logged in", which is not an error
+const fetchMe = async () => {
   try {
-    const response = await api.get(url);
-    return response.data.data;
-  } catch (error) {
-    if (error.response?.status === 401) {
-      return null; // Not authenticated
-    }
-    throw error;
+    const res = await api.get("/auth/me");
+    return res.data.data;
+  } catch (e) {
+    if (e.response?.status === 401) return null;
+    throw e;
   }
 };
 
 export function AuthProvider({ children }) {
-  const router = useRouter();
-  
-  // SWR hook for current user
-  const { data: user, error, mutate, isLoading } = useSWR('/auth/me', fetcher, {
+  const { data, isLoading, mutate } = useSWR("/auth/me", fetchMe, {
+    shouldRetryOnError: false,
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
-    shouldRetryOnError: false
   });
 
-  const login = async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
-    await mutate(response.data.data);
-    return response.data;
-  };
+  const login = useCallback(
+    async (email, password) => {
+      const res = await api.post("/auth/login", { email, password });
+      const user = res.data.data;
+      await mutate(user, { revalidate: false });
+      return user;
+    },
+    [mutate]
+  );
 
-  const register = async (data) => {
-    const response = await api.post('/auth/register', data);
-    await mutate(response.data.data);
-    return response.data;
-  };
+  const register = useCallback(
+    async (data) => {
+      const res = await api.post("/auth/register", data);
+      const user = res.data.data;
+      await mutate(user, { revalidate: false });
+      return user;
+    },
+    [mutate]
+  );
 
-  const logout = async () => {
-    await api.post('/auth/logout');
-    await mutate(null, false);
-    router.push('/');
-  };
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      await mutate(null, { revalidate: false });
+    }
+  }, [mutate]);
+
+  useEffect(() => {
+    const onExpired = () => mutate(null, { revalidate: false });
+    window.addEventListener("auth:expired", onExpired);
+    return () => window.removeEventListener("auth:expired", onExpired);
+  }, [mutate]);
 
   const value = {
-    user,
-    error,
-    isLoading,
-    isAuthenticated: !!user,
+    user: data ?? null,
+    loading: isLoading,
+    isAuthenticated: !!data,
     login,
     register,
     logout,
-    mutate
+    refresh: mutate,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -72,24 +73,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }
-
-// Axios interceptor for global 401 handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined') {
-      // Redirect to login if not already there
-      if (!window.location.pathname.startsWith('/login')) {
-        const next = encodeURIComponent(window.location.pathname);
-        window.location.href = `/login?next=${next}`;
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
-export { api };

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { homeFor } from '@/lib/roles';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 
 const ROLES = [
   {
@@ -34,6 +35,7 @@ const ROLES = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { user, loading, register } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -42,7 +44,14 @@ export default function RegisterPage() {
     confirmPassword: '',
     role: ''
   });
-  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace(homeFor(user.role));
+    }
+  }, [loading, user, router]);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -74,19 +83,31 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    setBusy(true);
     try {
       const { confirmPassword, ...registerData } = formData;
-      await axios.post('/api/auth/register', registerData);
+      const user = await register(registerData);
       
-      toast.success('Registration successful! Please login.');
-      router.push('/login');
+      toast.success('Registration successful!');
+      router.replace(homeFor(user.role));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(error.response?.data?.error?.message || 'Registration failed');
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
+
+  // Don't show form if already logged in
+  if (loading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
@@ -194,10 +215,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={busy}
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
           >
-            {loading ? 'Creating account...' : 'Create Account'}
+            {busy ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 

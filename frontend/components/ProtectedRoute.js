@@ -1,37 +1,24 @@
-'use client';
+"use client";
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
-import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-
-export default function ProtectedRoute({ children, requiredRole = null }) {
+export default function ProtectedRoute({ roles, children }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const allowed = user && (!roles || roles.includes(user.role));
 
   useEffect(() => {
-    if (!loading) {
-      // Not authenticated - redirect to login
-      if (!user) {
-        router.push(`/login?next=${encodeURIComponent(pathname)}`);
-        return;
-      }
-
-      // Check role if required
-      if (requiredRole) {
-        const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-        
-        if (!allowedRoles.includes(user.role)) {
-          // User doesn't have required role
-          router.push('/');
-          return;
-        }
-      }
+    if (loading) return; // Do nothing until /auth/me resolves
+    if (!user) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    } else if (!allowed) {
+      router.replace("/");
     }
-  }, [user, loading, router, pathname, requiredRole]);
+  }, [loading, user, allowed, router, pathname]);
 
-  // Show loading spinner while checking auth
-  if (loading) {
+  if (loading || !allowed) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -40,19 +27,6 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
         </div>
       </div>
     );
-  }
-
-  // Don't render children until auth is verified
-  if (!user) {
-    return null;
-  }
-
-  // Check role authorization
-  if (requiredRole) {
-    const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    if (!allowedRoles.includes(user.role)) {
-      return null;
-    }
   }
 
   return <>{children}</>;
