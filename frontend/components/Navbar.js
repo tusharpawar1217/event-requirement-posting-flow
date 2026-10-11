@@ -27,23 +27,23 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md border-b border-gray-200">
+    <nav className="bg-dark-800/80 backdrop-blur-sm shadow-xl border-b border-dark-600/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-blue-600 hover:text-blue-700 transition">
+            <a href="/" className="text-xl font-bold bg-gradient-to-r from-starlit to-moonstone bg-clip-text text-transparent hover:opacity-80 transition">
               EventFlow
             </a>
           </div>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
-            <a href="/browse" className="text-gray-700 hover:text-blue-600 transition font-medium">
+            <a href="/browse" className="text-gray-300 hover:text-starlit transition font-medium">
               Browse Requirements
             </a>
             {user && (
-              <a href="/post" className="text-gray-700 hover:text-blue-600 transition font-medium">
+              <a href="/post" className="text-gray-300 hover:text-starlit transition font-medium">
                 Post Requirement
               </a>
             )}
@@ -52,16 +52,16 @@ export default function Navbar() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             {loading ? (
-              <div className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="h-8 w-8 border-2 border-starlit border-t-transparent rounded-full animate-spin"></div>
             ) : user ? (
               <div className="flex items-center space-x-3">
                 {/* User Badge */}
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="flex items-center space-x-2 bg-dark-700/50 rounded-full px-4 py-2 border border-dark-600">
+                  <div className="w-8 h-8 bg-gradient-to-br from-starlit to-moonstone rounded-full flex items-center justify-center text-cosmic font-semibold">
                     {user.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <div className="hidden sm:block">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                    <div className="text-sm font-medium text-gray-100">{user.name}</div>
                     <div className={`text-xs px-2 py-0.5 rounded-full inline-block ${ROLE_COLORS[user.role] || 'bg-gray-100 text-gray-800'}`}>
                       {user.role}
                     </div>
@@ -71,7 +71,7 @@ export default function Navbar() {
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition border border-red-200 hover:border-red-300"
+                  className="px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-lg transition border border-red-500/30 hover:border-red-500/50"
                 >
                   Logout
                 </button>
@@ -80,13 +80,13 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 <a
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+                  className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-starlit transition"
                 >
                   Sign In
                 </a>
                 <a
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                  className="btn-primary text-sm"
                 >
                   Sign Up
                 </a>

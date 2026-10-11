@@ -89,17 +89,32 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-8">
+    <div className="min-h-screen py-12 px-4 relative">
+      {/* Cosmic background effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-1 h-1 bg-starlit rounded-full top-[10%] left-[10%] animate-pulse"></div>
+        <div className="absolute w-1 h-1 bg-moonstone rounded-full top-[20%] right-[15%] animate-pulse delay-100"></div>
+        <div className="absolute w-2 h-2 bg-starlit/50 rounded-full bottom-[20%] left-[20%] animate-pulse delay-200"></div>
+        <div className="absolute w-1 h-1 bg-moonstone/70 rounded-full top-[70%] right-[25%] animate-pulse"></div>
+      </div>
+
+      <div className="max-w-2xl mx-auto card p-8 relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join our event platform today</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-secondary-500 via-moonstone to-starlit rounded-2xl flex items-center justify-center shadow-2xl shadow-starlit/20 mb-4 mx-auto border border-starlit/30">
+            <svg className="w-10 h-10 text-cosmic" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-starlit via-moonstone to-starlit bg-clip-text text-transparent">
+            Create Account
+          </h1>
+          <p className="text-gray-400 mt-2">Join our event platform today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
               Full Name
             </label>
             <input
@@ -108,7 +123,7 @@ export default function RegisterPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg focus:ring-2 focus:ring-starlit focus:border-transparent transition text-gray-100 placeholder-gray-500"
               placeholder="John Doe"
               required
             />
@@ -116,7 +131,7 @@ export default function RegisterPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               Email Address
             </label>
             <input
@@ -125,7 +140,7 @@ export default function RegisterPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg focus:ring-2 focus:ring-starlit focus:border-transparent transition text-gray-100 placeholder-gray-500"
               placeholder="you@example.com"
               required
             />
@@ -133,7 +148,7 @@ export default function RegisterPage() {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
               Password
             </label>
             <input
@@ -142,7 +157,7 @@ export default function RegisterPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg focus:ring-2 focus:ring-starlit focus:border-transparent transition text-gray-100 placeholder-gray-500"
               placeholder="••••••••"
               minLength={8}
               required
@@ -152,7 +167,7 @@ export default function RegisterPage() {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
               Confirm Password
             </label>
             <input
@@ -161,7 +176,7 @@ export default function RegisterPage() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg focus:ring-2 focus:ring-starlit focus:border-transparent transition text-gray-100 placeholder-gray-500"
               placeholder="••••••••"
               required
             />
@@ -169,7 +184,7 @@ export default function RegisterPage() {
 
           {/* Role Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-300 mb-3">
               Select Your Role
             </label>
             <div className="grid grid-cols-2 gap-4">
@@ -180,13 +195,13 @@ export default function RegisterPage() {
                   onClick={() => handleRoleSelect(role.value)}
                   className={`p-4 border-2 rounded-lg text-left transition ${
                     formData.role === role.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-starlit bg-starlit/10'
+                      : 'border-dark-600 hover:border-moonstone/50 bg-dark-800/30'
                   }`}
                 >
                   <div className="text-2xl mb-2">{role.icon}</div>
-                  <div className="font-semibold text-gray-900">{role.label}</div>
-                  <div className="text-sm text-gray-600">{role.description}</div>
+                  <div className="font-semibold text-gray-100">{role.label}</div>
+                  <div className="text-sm text-gray-400">{role.description}</div>
                 </button>
               ))}
             </div>
@@ -195,16 +210,16 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="w-full btn-primary"
           >
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             Already have an account?{' '}
-            <a href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+            <a href="/login" className="text-starlit hover:text-primary-300 font-semibold transition">
               Sign in
             </a>
           </p>
