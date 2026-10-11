@@ -7,7 +7,12 @@ const PORT = process.env.PORT || 5000;
 // Connect to database
 connectDB();
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// For Vercel serverless deployment
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // For local and traditional hosting (Render, Heroku, etc.)
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
