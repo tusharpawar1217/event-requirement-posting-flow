@@ -28,11 +28,6 @@ const baseSchema = new mongoose.Schema(
       type: String, 
       default: 'open',
       enum: ['open', 'closed', 'in-progress']
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false // Optional for backward compatibility with existing data
     }
   },
   { 

@@ -3,34 +3,43 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-// Trust proxy - required for Render, Heroku, etc.
+// Trust proxy - required for Render, Heroku, Vercel, etc.
 app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
 
-// CORS
+// Cookie parser (must be before routes)
+app.use(cookieParser());
+
+// MongoDB query sanitization (prevents NoSQL injection)
+app.use(mongoSanitize());
+
+// CORS with credentials
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true
 }));
 
-// Body parser
+// Body parser (limit to 100kb, uploads handled separately by multer)
 app.use(express.json({ limit: '100kb' }));
 
 // Logging
 app.use(morgan('dev'));
 
-// Rate limiting
+// Rate limiting (generic)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use(limiter);
 

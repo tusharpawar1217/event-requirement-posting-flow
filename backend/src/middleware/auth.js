@@ -1,12 +1,19 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Verify JWT_SECRET on startup
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  console.error('ERROR: JWT_SECRET must be at least 32 characters');
+  process.exit(1);
+}
 
-// Authenticate user middleware
-exports.authenticate = async (req, res, next) => {
+/**
+ * Authenticate user from JWT cookie
+ * Requires valid token, unbanned user, matching tokenVersion
+ */
+async function authenticate(req, res, next) {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.cookies.token;
     
     if (!token) {
       return res.status(401).json({
@@ -18,52 +25,143 @@ exports.authenticate = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId);
-
-    if (!user || !user.isActive) {
+    // Verify JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Load user
+    const user = await User.findById(decoded.sub).select('+passwordHash');
+    
+    if (!user) {
       return res.status(401).json({
         success: false,
         error: {
           code: 'UNAUTHORIZED',
-          message: 'Invalid or expired token'
+          message: 'Authentication required'
         }
       });
     }
 
-    req.user = user;
+    // Check if user is banned
+    if (user.isBanned) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Account has been banned'
+        }
+      });
+    }
+
+    // Check token version (for logout-all / password change)
+    if (decoded.tv !== user.tokenVersion) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required'
+        }
+      });
+    }
+
+    // Attach user to request (without passwordHash)
+    req.user = user.toJSON();
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Invalid or expired token'
-      }
-    });
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required'
+        }
+      });
+    }
+    next(error);
   }
-};
+}
 
-// Check if user is admin
-exports.isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({
-      success: false,
-      error: {
-        code: 'FORBIDDEN',
-        message: 'Admin access required'
-      }
-    });
-  }
-  next();
-};
-
-// Check if user owns the resource
-exports.isOwner = (Model) => async (req, res, next) => {
+/**
+ * Optional authentication - loads user if token present, but doesn't require it
+ */
+async function optionalAuth(req, res, next) {
   try {
-    const resource = await Model.findById(req.params.id);
+    const token = req.cookies.token;
     
-    if (!resource) {
+    if (!token) {
+      return next();
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.sub);
+    
+    if (user && !user.isBanned && decoded.tv === user.tokenVersion) {
+      req.user = user.toJSON();
+    }
+    
+    next();
+  } catch (error) {
+    // Ignore invalid tokens for optional auth
+    next();
+  }
+}
+
+/**
+ * Require specific role(s)
+ */
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required'
+        }
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Insufficient permissions'
+        }
+      });
+    }
+
+    next();
+  };
+}
+
+/**
+ * Require owner or admin for a resource
+ * Expects req.params.id and a Model to load
+ */
+function requireOwnerOrAdmin(Model, ownerField = 'owner') {
+  return async (req, res, next) => {
+    try {
+      const resource = await Model.findById(req.params.id);
+      
+      if (!resource) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'Resource not found'
+          }
+        });
+      }
+
+      const ownerId = resource[ownerField]?.toString();
+      const userId = req.user._id.toString();
+      
+      if (req.user.role === 'admin' || ownerId === userId) {
+        req.resource = resource;
+        return next();
+      }
+
+      // Return 404 (not 403) to avoid leaking existence
       return res.status(404).json({
         success: false,
         error: {
@@ -71,37 +169,15 @@ exports.isOwner = (Model) => async (req, res, next) => {
           message: 'Resource not found'
         }
       });
+    } catch (error) {
+      next(error);
     }
+  };
+}
 
-    // Admin can access any resource
-    if (req.user.role === 'admin') {
-      return next();
-    }
-
-    // Check if user owns the resource
-    if (resource.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to access this resource'
-        }
-      });
-    }
-
-    next();
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Server error'
-      }
-    });
-  }
-};
-
-// Generate JWT token
-exports.generateToken = (userId) => {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+module.exports = {
+  authenticate,
+  optionalAuth,
+  requireRole,
+  requireOwnerOrAdmin
 };
