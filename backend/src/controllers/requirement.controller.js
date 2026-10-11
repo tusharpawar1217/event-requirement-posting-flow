@@ -3,7 +3,10 @@ const Requirement = require('../models/Requirement');
 
 async function create(req, res, next) {
   try {
-    const data = req.validated;
+    const data = {
+      ...req.validated,
+      createdBy: req.user?._id // Add user ID if authenticated
+    };
     
     // Create using the base model - discriminator is handled automatically
     const requirement = new Requirement(data);
@@ -92,8 +95,108 @@ async function getById(req, res, next) {
   }
 }
 
+async function update(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_ID',
+          message: 'Invalid ID format'
+        }
+      });
+    }
+    
+    const requirement = await Requirement.findById(id);
+    
+    if (!requirement) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Requirement not found'
+        }
+      });
+    }
+    
+    // Check ownership
+    if (requirement.createdBy && requirement.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to update this requirement'
+        }
+      });
+    }
+    
+    // Update fields
+    Object.assign(requirement, req.validated);
+    await requirement.save();
+    
+    res.json({
+      success: true,
+      data: requirement
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteRequirement(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_ID',
+          message: 'Invalid ID format'
+        }
+      });
+    }
+    
+    const requirement = await Requirement.findById(id);
+    
+    if (!requirement) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Requirement not found'
+        }
+      });
+    }
+    
+    // Check ownership
+    if (requirement.createdBy && requirement.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to delete this requirement'
+        }
+      });
+    }
+    
+    await requirement.deleteOne();
+    
+    res.json({
+      success: true,
+      message: 'Requirement deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   create,
   list,
-  getById
+  getById,
+  update,
+  deleteRequirement
 };
