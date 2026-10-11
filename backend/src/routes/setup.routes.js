@@ -15,38 +15,52 @@ const router = express.Router();
  */
 router.post('/seed-admin', async (req, res) => {
   try {
-    // Check if any admin exists
-    const existingAdmin = await User.findOne({ role: 'admin' });
+    // Check if the specific admin email exists (might have wrong role or missing password)
+    const existingUser = await User.findOne({ email: 'admin@example.com' }).select('+passwordHash');
     
-    if (existingAdmin) {
+    if (existingUser) {
+      // Check if password is missing
+      if (!existingUser.passwordHash) {
+        console.log('Admin exists but password is missing - fixing...');
+        existingUser.passwordHash = await bcrypt.hash('Admin123!SecurePassword', 12);
+        existingUser.role = 'admin';
+        existingUser.name = 'Admin';
+        await existingUser.save();
+        
+        return res.json({
+          success: true,
+          message: 'Admin user password fixed',
+          data: {
+            email: existingUser.email,
+            role: existingUser.role,
+            id: existingUser._id,
+            fixed: true
+          }
+        });
+      }
+      
+      // Admin exists with password - check if it's actually admin role
+      if (existingUser.role !== 'admin') {
+        existingUser.role = 'admin';
+        await existingUser.save();
+        
+        return res.json({
+          success: true,
+          message: 'User upgraded to admin',
+          data: {
+            email: existingUser.email,
+            role: existingUser.role,
+            id: existingUser._id
+          }
+        });
+      }
+      
+      // Admin exists properly
       return res.status(400).json({
         success: false,
         error: {
           code: 'ADMIN_EXISTS',
-          message: 'Admin user already exists. This endpoint is disabled.'
-        }
-      });
-    }
-
-    // Check if the specific admin email exists (might have wrong role)
-    const existingUser = await User.findOne({ email: 'admin@example.com' }).select('+passwordHash');
-    
-    if (existingUser) {
-      // Update existing user to admin with proper password
-      if (!existingUser.passwordHash) {
-        existingUser.passwordHash = await bcrypt.hash('Admin123!SecurePassword', 12);
-      }
-      existingUser.role = 'admin';
-      existingUser.name = 'Admin';
-      await existingUser.save();
-      
-      return res.json({
-        success: true,
-        message: 'Existing user upgraded to admin',
-        data: {
-          email: existingUser.email,
-          role: existingUser.role,
-          id: existingUser._id
+          message: 'Admin user already exists and is properly configured'
         }
       });
     }
@@ -81,7 +95,7 @@ router.post('/seed-admin', async (req, res) => {
       success: false,
       error: {
         code: 'INTERNAL_ERROR',
-        message: 'Failed to seed admin user'
+        message: error.message || 'Failed to seed admin user'
       }
     });
   }
