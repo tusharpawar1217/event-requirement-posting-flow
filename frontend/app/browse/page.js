@@ -118,9 +118,15 @@ function BrowseContent() {
         {!loading && !error && requirements.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {requirements.map((req) => (
-              <div key={req._id} className="card p-6 hover:shadow-2xl hover:border-starlit/50 transition-all duration-300">
+              <Link 
+                key={req._id} 
+                href={`/requirements/${req._id}`}
+                className="card p-6 hover:shadow-2xl hover:border-starlit/50 transition-all duration-300 cursor-pointer group"
+              >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-starlit">{req.eventName}</h3>
+                  <h3 className="text-xl font-bold text-starlit group-hover:text-moonstone transition-colors">
+                    {req.eventName}
+                  </h3>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium bg-${currentCategory.color}/20 text-${currentCategory.color}`}>
                     {req.category}
                   </span>
@@ -176,10 +182,15 @@ function BrowseContent() {
                   </div>
                 )}
 
-                <div className="mt-4 text-xs text-gray-500">
-                  Posted {formatDate(req.createdAt)}
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="text-xs text-gray-500">
+                    Posted {formatDate(req.createdAt)}
+                  </div>
+                  <div className="text-blue-400 text-sm font-medium group-hover:translate-x-1 transition-transform">
+                    View Details →
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
