@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { JWT_SECRET } = require('../middleware/auth');
 
 // Generic error to prevent user enumeration
 const AUTH_ERROR = 'Invalid email or password';
@@ -42,7 +43,7 @@ async function register(req, res, next) {
         role: user.role,
         tv: user.tokenVersion
       },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -118,7 +119,7 @@ async function login(req, res, next) {
         role: user.role,
         tv: user.tokenVersion
       },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 

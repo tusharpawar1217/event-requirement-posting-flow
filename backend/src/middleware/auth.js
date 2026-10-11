@@ -1,11 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Verify JWT_SECRET on startup
-if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-  console.error('ERROR: JWT_SECRET must be at least 32 characters');
-  process.exit(1);
-}
+// Verify JWT_SECRET on startup (with fallback for dev)
+const getJWTSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      console.error('CRITICAL: JWT_SECRET must be at least 32 characters in production');
+      throw new Error('JWT_SECRET configuration error');
+    }
+    // Fallback for dev only
+    console.warn('WARNING: Using default JWT_SECRET for development. Set JWT_SECRET in production!');
+    return 'dev-secret-key-change-in-production-min-32-chars';
+  }
+  return secret;
+};
+
+const JWT_SECRET = getJWTSecret();
 
 /**
  * Authenticate user from JWT cookie
@@ -26,7 +37,7 @@ async function authenticate(req, res, next) {
     }
 
     // Verify JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     // Load user
     const user = await User.findById(decoded.sub).select('+passwordHash');
@@ -91,7 +102,7 @@ async function optionalAuth(req, res, next) {
       return next();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.sub);
     
     if (user && !user.isBanned && decoded.tv === user.tokenVersion) {
@@ -179,5 +190,6 @@ module.exports = {
   authenticate,
   optionalAuth,
   requireRole,
-  requireOwnerOrAdmin
+  requireOwnerOrAdmin,
+  JWT_SECRET
 };
