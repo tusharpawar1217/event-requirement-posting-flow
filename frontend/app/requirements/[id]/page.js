@@ -68,10 +68,10 @@ export default function RequirementDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-cosmic">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading requirement...</p>
+          <div className="w-16 h-16 border-4 border-starlit border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading requirement...</p>
         </div>
       </div>
     );
@@ -79,11 +79,11 @@ export default function RequirementDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-cosmic">
+        <div className="card max-w-md w-full p-8 text-center">
           <div className="text-6xl mb-4">❌</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-starlit mb-2">Error</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
           <Link href="/browse" className="btn-primary inline-block">
             Back to Browse
           </Link>
@@ -94,11 +94,11 @@ export default function RequirementDetailPage() {
 
   if (!requirement) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-cosmic">
+        <div className="card max-w-md w-full p-8 text-center">
           <div className="text-6xl mb-4">📭</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Not Found</h2>
-          <p className="text-gray-600 mb-6">This requirement does not exist</p>
+          <h2 className="text-2xl font-bold text-starlit mb-2">Not Found</h2>
+          <p className="text-gray-400 mb-6">This requirement does not exist</p>
           <Link href="/browse" className="btn-primary inline-block">
             Back to Browse
           </Link>
@@ -142,18 +142,18 @@ export default function RequirementDetailPage() {
         {/* Main Card */}
         <div className="card overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-secondary-500 via-moonstone to-starlit p-8 border-b border-starlit/30">
+          <div className="bg-gradient-to-r from-secondary-600 via-secondary-500 to-primary-500 p-8 border-b border-starlit/30">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-4xl">{categoryIcons[requirement.category]}</span>
-                  <span className="px-3 py-1 bg-cosmic/50 backdrop-blur-sm rounded-full text-sm font-medium text-white border border-starlit/30">
+                  <span className="px-3 py-1 bg-dark-800/60 backdrop-blur-sm rounded-full text-sm font-medium text-starlit border border-starlit/30">
                     {requirement.category}
                   </span>
                 </div>
-                <h1 className="text-3xl font-bold mb-2 text-cosmic">{requirement.eventName}</h1>
+                <h1 className="text-3xl font-bold mb-2 text-white">{requirement.eventName}</h1>
                 {requirement.description && (
-                  <p className="text-cosmic/80">{requirement.description}</p>
+                  <p className="text-gray-200">{requirement.description}</p>
                 )}
               </div>
               
@@ -161,14 +161,14 @@ export default function RequirementDetailPage() {
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={handleEdit}
-                    className="px-4 py-2 bg-cosmic text-starlit rounded-lg font-semibold hover:bg-secondary-600 transition border border-starlit/30"
+                    className="px-4 py-2 bg-dark-700 text-starlit rounded-lg font-semibold hover:bg-dark-600 transition border border-starlit/50"
                   >
                     Edit
                   </button>
                   <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 disabled:opacity-50 transition"
+                    className="px-4 py-2 bg-red-500/90 text-white rounded-lg font-semibold hover:bg-red-600 disabled:opacity-50 transition"
                   >
                     {deleting ? "Deleting..." : "Delete"}
                   </button>
@@ -181,46 +181,49 @@ export default function RequirementDetailPage() {
           <div className="p-8 space-y-8">
             {/* Basic Info */}
             <section>
-              <h2 className="text-xl font-bold text-starlit mb-4">Event Details</h2>
+              <h2 className="text-xl font-bold text-starlit mb-4 flex items-center gap-2">
+                <span className="text-2xl">📅</span>
+                Event Details
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-moonstone mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 bg-dark-800/30 p-4 rounded-lg border border-dark-600/50">
+                  <svg className="w-6 h-6 text-primary-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <div>
-                    <div className="text-sm text-gray-400">Event Date</div>
-                    <div className="font-semibold text-starlit">{formatDate(requirement.eventDate)}</div>
+                    <div className="text-sm text-gray-500 mb-1">Event Date</div>
+                    <div className="font-semibold text-gray-200">{formatDate(requirement.eventDate)}</div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-moonstone mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 bg-dark-800/30 p-4 rounded-lg border border-dark-600/50">
+                  <svg className="w-6 h-6 text-primary-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <div className="text-sm text-gray-400">Event Time</div>
-                    <div className="font-semibold text-starlit">{formatTime(requirement.eventTime)}</div>
+                    <div className="text-sm text-gray-500 mb-1">Event Time</div>
+                    <div className="font-semibold text-gray-200">{formatTime(requirement.eventTime)}</div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-moonstone mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 bg-dark-800/30 p-4 rounded-lg border border-dark-600/50">
+                  <svg className="w-6 h-6 text-primary-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <div className="text-sm text-gray-400">Location</div>
-                    <div className="font-semibold text-starlit">{requirement.location}</div>
+                    <div className="text-sm text-gray-500 mb-1">Location</div>
+                    <div className="font-semibold text-gray-200">{requirement.location}</div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-moonstone mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 bg-dark-800/30 p-4 rounded-lg border border-dark-600/50">
+                  <svg className="w-6 h-6 text-primary-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <div className="text-sm text-gray-400">Budget</div>
-                    <div className="font-semibold text-starlit">${requirement.budget?.toLocaleString() || "Not specified"}</div>
+                    <div className="text-sm text-gray-500 mb-1">Budget</div>
+                    <div className="font-semibold text-gray-200">${requirement.budget?.toLocaleString() || "Not specified"}</div>
                   </div>
                 </div>
               </div>
@@ -229,20 +232,23 @@ export default function RequirementDetailPage() {
             {/* Category-Specific Details */}
             {requirement.category === "planner" && (
               <section>
-                <h2 className="text-xl font-bold text-starlit mb-4">Planning Details</h2>
-                <div className="bg-dark-700/50 rounded-lg p-6 space-y-4 border border-starlit/20">
-                  <div>
-                    <span className="text-sm text-gray-400">Event Type: </span>
-                    <span className="font-semibold text-moonstone">{requirement.eventType || "Not specified"}</span>
+                <h2 className="text-xl font-bold text-starlit mb-4 flex items-center gap-2">
+                  <span className="text-2xl">📋</span>
+                  Planning Details
+                </h2>
+                <div className="bg-dark-800/50 rounded-lg p-6 space-y-4 border border-starlit/20">
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Event Type</span>
+                    <span className="font-semibold text-primary-300">{requirement.eventType || "Not specified"}</span>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-400">Expected Guests: </span>
-                    <span className="font-semibold text-moonstone">{requirement.guestCount || "Not specified"}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Expected Guests</span>
+                    <span className="font-semibold text-primary-300">{requirement.guestCount || "Not specified"}</span>
                   </div>
                   {requirement.venuePreference && (
-                    <div>
-                      <span className="text-sm text-gray-400">Venue Preference: </span>
-                      <span className="font-semibold text-moonstone">{requirement.venuePreference}</span>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-gray-400">Venue Preference</span>
+                      <span className="font-semibold text-primary-300">{requirement.venuePreference}</span>
                     </div>
                   )}
                 </div>
@@ -251,20 +257,23 @@ export default function RequirementDetailPage() {
 
             {requirement.category === "performer" && (
               <section>
-                <h2 className="text-xl font-bold text-starlit mb-4">Performance Details</h2>
-                <div className="bg-dark-700/50 rounded-lg p-6 space-y-4 border border-starlit/20">
-                  <div>
-                    <span className="text-sm text-gray-400">Performance Type: </span>
-                    <span className="font-semibold text-moonstone">{requirement.performanceType || "Not specified"}</span>
+                <h2 className="text-xl font-bold text-starlit mb-4 flex items-center gap-2">
+                  <span className="text-2xl">🎭</span>
+                  Performance Details
+                </h2>
+                <div className="bg-dark-800/50 rounded-lg p-6 space-y-4 border border-starlit/20">
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Performance Type</span>
+                    <span className="font-semibold text-primary-300">{requirement.performanceType || "Not specified"}</span>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-400">Duration: </span>
-                    <span className="font-semibold text-moonstone">{requirement.duration || "Not specified"}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Duration</span>
+                    <span className="font-semibold text-primary-300">{requirement.duration || "Not specified"}</span>
                   </div>
                   {requirement.equipment && (
-                    <div>
-                      <span className="text-sm text-gray-400">Equipment Provided: </span>
-                      <span className="font-semibold text-moonstone">{requirement.equipment}</span>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-gray-400">Equipment Provided</span>
+                      <span className="font-semibold text-primary-300">{requirement.equipment}</span>
                     </div>
                   )}
                 </div>
@@ -273,20 +282,23 @@ export default function RequirementDetailPage() {
 
             {requirement.category === "crew" && (
               <section>
-                <h2 className="text-xl font-bold text-starlit mb-4">Crew Details</h2>
-                <div className="bg-dark-700/50 rounded-lg p-6 space-y-4 border border-starlit/20">
-                  <div>
-                    <span className="text-sm text-gray-400">Crew Role: </span>
-                    <span className="font-semibold text-moonstone">{requirement.crewRole || "Not specified"}</span>
+                <h2 className="text-xl font-bold text-starlit mb-4 flex items-center gap-2">
+                  <span className="text-2xl">🔧</span>
+                  Crew Details
+                </h2>
+                <div className="bg-dark-800/50 rounded-lg p-6 space-y-4 border border-starlit/20">
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Crew Role</span>
+                    <span className="font-semibold text-primary-300">{requirement.crewRole || "Not specified"}</span>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-400">Number Required: </span>
-                    <span className="font-semibold text-moonstone">{requirement.numberOfCrew || "Not specified"}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-dark-600">
+                    <span className="text-sm text-gray-400">Number Required</span>
+                    <span className="font-semibold text-primary-300">{requirement.numberOfCrew || "Not specified"}</span>
                   </div>
                   {requirement.shiftTiming && (
-                    <div>
-                      <span className="text-sm text-gray-400">Shift Timing: </span>
-                      <span className="font-semibold text-moonstone">{requirement.shiftTiming}</span>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-gray-400">Shift Timing</span>
+                      <span className="font-semibold text-primary-300">{requirement.shiftTiming}</span>
                     </div>
                   )}
                 </div>
@@ -296,9 +308,12 @@ export default function RequirementDetailPage() {
             {/* Additional Requirements */}
             {requirement.additionalRequirements && (
               <section>
-                <h2 className="text-xl font-bold text-starlit mb-4">Additional Requirements</h2>
-                <div className="bg-dark-700/50 rounded-lg p-6 border border-starlit/20">
-                  <p className="text-gray-300 whitespace-pre-wrap">{requirement.additionalRequirements}</p>
+                <h2 className="text-xl font-bold text-starlit mb-4 flex items-center gap-2">
+                  <span className="text-2xl">📝</span>
+                  Additional Requirements
+                </h2>
+                <div className="bg-dark-800/50 rounded-lg p-6 border border-starlit/20">
+                  <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{requirement.additionalRequirements}</p>
                 </div>
               </section>
             )}
