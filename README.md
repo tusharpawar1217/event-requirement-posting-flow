@@ -619,18 +619,95 @@ Confirms:
 
 ## ⚠️ Limitations
 
-1. **No Authentication**: Anyone can post requirements
-2. **No Edit/Delete**: Requirements cannot be modified after creation
-3. **No Image Upload**: Text-only requirements
-4. **No Real-time Updates**: Manual refresh needed for new data
-5. **No Email Notifications**: No automated alerts
-6. **No Search**: Basic category filtering only
-7. **No Payment Integration**: Budget/fee fields are informational only
-8. **No Booking System**: No way to accept/fulfill requirements
-9. **No User Profiles**: No user accounts or history
-10. **No Admin Panel**: No moderation tools
-11. **Limited Validation**: Past date check uses client time
-12. **No File Attachments**: Cannot upload contracts or media
+### 1. **No Authentication System**
+- **Issue**: Anyone can post, view, or access all requirements without login
+- **Impact**: No ownership tracking, potential spam, no private requirements
+- **Security Risk**: Cannot implement role-based access control or user-specific features
+- **Workaround**: Currently relying on rate limiting (100 requests per 15 min per IP)
+
+### 2. **No Edit or Delete Functionality**
+- **Issue**: Once a requirement is posted, it cannot be modified or removed
+- **Impact**: Users must create new requirements if they make mistakes
+- **Database**: Requirements persist indefinitely unless manually deleted via MongoDB
+- **Reason**: Would require authentication to verify ownership before allowing edits
+
+### 3. **No Image or File Upload Support**
+- **Issue**: Text-only requirements, cannot attach event images, contracts, or documents
+- **Impact**: Users cannot provide visual references or supporting documentation
+- **Technical**: Would need file storage (AWS S3, Cloudinary) and upload handling
+- **Size Limit**: Current API payload limited to 100KB
+
+### 4. **No Real-time Updates**
+- **Issue**: Users must manually refresh to see new requirements
+- **Impact**: Browse page shows stale data until page reload
+- **Technical**: Would require WebSocket implementation (Socket.io) or polling
+- **Alternative**: Could implement short polling as temporary solution
+
+### 5. **No Email Notifications**
+- **Issue**: No alerts when requirements match user interests or receive responses
+- **Impact**: Users must actively check the platform for updates
+- **Technical**: Would require email service (SendGrid, AWS SES) and notification logic
+- **Privacy**: No way to contact users directly since no user accounts exist
+
+### 6. **Limited Search and Filtering**
+- **Issue**: Only category-based filtering available, no keyword search
+- **Impact**: Cannot search by location, date range, budget, or specific keywords
+- **Performance**: No text search indexes on MongoDB
+- **UI**: No advanced filter controls (sliders, multi-select, etc.)
+
+### 7. **No Payment Integration**
+- **Issue**: Budget and fee fields are informational only
+- **Impact**: No escrow, deposits, or payment processing
+- **Business**: Cannot facilitate actual transactions or bookings
+- **Compliance**: Would require PCI compliance and payment gateway integration
+
+### 8. **No Booking or Fulfillment System**
+- **Issue**: No way to accept, respond to, or fulfill requirements
+- **Impact**: Platform is view-only, no interaction between posters and providers
+- **Features Missing**: Proposals, quotes, acceptance/rejection workflow
+- **Communication**: No messaging system between parties
+
+### 9. **No User Profiles or Account History**
+- **Issue**: No way to track who posted what, or view posting history
+- **Impact**: Cannot build reputation systems or user portfolios
+- **Analytics**: No user behavior tracking or personalization
+- **Trust**: Cannot verify user credibility or past performance
+
+### 10. **No Admin Moderation Panel**
+- **Issue**: No tools to moderate content, ban users, or remove spam
+- **Impact**: Platform vulnerable to inappropriate content or abuse
+- **Monitoring**: No flagging system or reporting mechanism
+- **Control**: Must access MongoDB directly to manage data
+
+### 11. **Limited Client-side Validation**
+- **Issue**: Past date validation uses client's local time
+- **Impact**: Users with incorrect system time can post past dates
+- **Server Validation**: Backend should validate dates against server time
+- **Timezone**: No timezone handling, assumes UTC
+
+### 12. **No File Attachments**
+- **Issue**: Cannot upload contracts, media files, or reference documents
+- **Impact**: Limited information sharing between parties
+- **Storage**: Would need cloud storage solution
+- **Size**: No way to handle large files (videos, high-res images)
+
+### 13. **Serverless Execution Limits (Vercel)**
+- **Issue**: 10-second function timeout on free tier
+- **Impact**: Long-running operations may fail
+- **Cold Starts**: First request may be slow after inactivity
+- **Upgrade**: Paid tier extends to 60 seconds
+
+### 14. **No Detailed Event Information Page**
+- **Issue**: Clicking a requirement card doesn't open detailed view
+- **Impact**: Users see limited information in list view only
+- **Missing**: Photos, full description, contact info, map integration
+- **Navigation**: No individual requirement pages or deep linking
+
+### 15. **No Pagination UI**
+- **Issue**: API supports pagination but frontend shows all results
+- **Impact**: Performance degrades with large datasets
+- **UX**: No "Load More" or page numbers on browse page
+- **Limit**: Could overwhelm browser with thousands of requirements
 
 ## 🚀 Future Improvements
 
