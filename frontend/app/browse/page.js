@@ -48,6 +48,36 @@ function BrowseContent() {
     });
   };
 
+  const isExpired = (eventDate) => {
+    const date = new Date(eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
+  const getDaysUntil = (eventDate) => {
+    const date = new Date(eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = date - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const getStatusBadge = (eventDate) => {
+    const daysUntil = getDaysUntil(eventDate);
+    
+    if (daysUntil < 0) {
+      return <span className="px-2 py-1 bg-red-900 text-red-300 border border-red-700 text-xs font-semibold uppercase">Expired</span>;
+    } else if (daysUntil === 0) {
+      return <span className="px-2 py-1 bg-yellow-900 text-yellow-300 border border-yellow-700 text-xs font-semibold uppercase">Today</span>;
+    } else if (daysUntil <= 7) {
+      return <span className="px-2 py-1 bg-orange-900 text-orange-300 border border-orange-700 text-xs font-semibold uppercase">Urgent</span>;
+    } else {
+      return <span className="px-2 py-1 bg-starlit/20 text-starlit border border-starlit text-xs font-semibold uppercase">Active</span>;
+    }
+  };
+
   const currentCategory = categories[category];
 
   return (
@@ -121,15 +151,15 @@ function BrowseContent() {
               <Link 
                 key={req._id} 
                 href={`/requirements/${req._id}`}
-                className="card p-6 hover:shadow-2xl hover:border-starlit/50 transition-all duration-300 cursor-pointer group"
+                className={`card p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer group ${isExpired(req.eventDate) ? 'opacity-70 hover:border-red-700/50' : 'hover:border-starlit/50'}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-starlit group-hover:text-moonstone transition-colors">
                     {req.eventName}
                   </h3>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium bg-${currentCategory.color}/20 text-${currentCategory.color}`}>
-                    {req.category}
-                  </span>
+                  <div className="flex gap-2 items-center">
+                    {getStatusBadge(req.eventDate)}
+                  </div>
                 </div>
                 
                 <div className="space-y-2 text-sm text-gray-300">
@@ -186,8 +216,15 @@ function BrowseContent() {
                   <div className="text-xs text-gray-500">
                     Posted {formatDate(req.createdAt)}
                   </div>
-                  <div className="text-blue-400 text-sm font-medium group-hover:translate-x-1 transition-transform">
-                    View Details →
+                  <div className="flex items-center gap-3">
+                    {!isExpired(req.eventDate) && getDaysUntil(req.eventDate) <= 14 && (
+                      <span className="text-xs text-orange-400 font-bold">
+                        {getDaysUntil(req.eventDate)}d left
+                      </span>
+                    )}
+                    <div className="text-blue-400 text-sm font-medium group-hover:translate-x-1 transition-transform">
+                      View Details →
+                    </div>
                   </div>
                 </div>
               </Link>

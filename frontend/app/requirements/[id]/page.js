@@ -68,6 +68,36 @@ export default function RequirementDetailPage() {
     }).toUpperCase();
   };
 
+  const isExpired = () => {
+    const eventDate = new Date(requirement.eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return eventDate < today;
+  };
+
+  const getDaysUntil = () => {
+    const eventDate = new Date(requirement.eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = eventDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const getStatusBadge = () => {
+    const daysUntil = getDaysUntil();
+    
+    if (daysUntil < 0) {
+      return <span className="px-2 py-1 bg-red-900 text-red-300 border border-red-700 text-xs font-semibold uppercase">Expired</span>;
+    } else if (daysUntil === 0) {
+      return <span className="px-2 py-1 bg-yellow-900 text-yellow-300 border border-yellow-700 text-xs font-semibold uppercase">Today</span>;
+    } else if (daysUntil <= 7) {
+      return <span className="px-2 py-1 bg-orange-900 text-orange-300 border border-orange-700 text-xs font-semibold uppercase">Urgent</span>;
+    } else {
+      return <span className="badge-primary text-xs">Active</span>;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cosmic">
@@ -131,11 +161,24 @@ export default function RequirementDetailPage() {
             {/* Header */}
             <div className="card p-6 border-l-4 border-starlit">
               <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="badge mb-2">{categoryIcons[requirement.category]} {requirement.category.toUpperCase()}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="badge">{categoryIcons[requirement.category]} {requirement.category.toUpperCase()}</div>
+                    {getStatusBadge()}
+                  </div>
                   <h1 className="text-3xl font-black text-gray-100 uppercase mb-2">{requirement.eventName}</h1>
                   {requirement.description && (
                     <p className="text-gray-400">{requirement.description}</p>
+                  )}
+                  {isExpired() && (
+                    <div className="mt-4 px-4 py-3 bg-red-900/20 border border-red-800 text-red-300 text-sm">
+                      ⚠️ <strong>EXPIRED:</strong> Event date has passed. Contact poster for updates.
+                    </div>
+                  )}
+                  {!isExpired() && getDaysUntil() <= 3 && (
+                    <div className="mt-4 px-4 py-3 bg-orange-900/20 border border-orange-800 text-orange-300 text-sm">
+                      ⏰ <strong>URGENT:</strong> Event is {getDaysUntil()} day{getDaysUntil() !== 1 ? 's' : ''} away!
+                    </div>
                   )}
                 </div>
               </div>
@@ -277,8 +320,14 @@ export default function RequirementDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 text-sm">STATUS</span>
-                  <span className="badge-primary">ACTIVE</span>
+                  {getStatusBadge()}
                 </div>
+                {!isExpired() && getDaysUntil() <= 30 && (
+                  <div className="flex justify-between pt-2 border-t-2 border-dark-700">
+                    <span className="text-gray-500 text-sm">DAYS LEFT</span>
+                    <span className="text-starlit font-black text-lg">{getDaysUntil()}</span>
+                  </div>
+                )}
               </div>
             </div>
 
