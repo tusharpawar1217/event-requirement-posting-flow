@@ -27,12 +27,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-dark-900 border-b-4 border-starlit">
+    <nav className="bg-dark-900 border-b-2 border-starlit">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="text-2xl font-black text-starlit hover:text-primary-300 transition uppercase tracking-wider">
+            <a href="/" className="text-lg font-black text-starlit hover:text-primary-300 transition uppercase tracking-wider">
               EVENTFLOW
             </a>
           </div>
@@ -41,14 +41,14 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-1">
             <a 
               href="/browse" 
-              className="px-4 py-2 text-gray-300 hover:text-starlit hover:bg-dark-800 transition font-bold uppercase tracking-wide text-sm border-2 border-transparent hover:border-dark-600"
+              className="px-3 py-1.5 text-gray-300 hover:text-starlit hover:bg-dark-800 transition font-semibold uppercase tracking-wide text-xs border border-transparent hover:border-dark-600"
             >
               Browse
             </a>
             {user && (
               <a 
                 href="/post" 
-                className="px-4 py-2 text-gray-300 hover:text-starlit hover:bg-dark-800 transition font-bold uppercase tracking-wide text-sm border-2 border-transparent hover:border-dark-600"
+                className="px-3 py-1.5 text-gray-300 hover:text-starlit hover:bg-dark-800 transition font-semibold uppercase tracking-wide text-xs border border-transparent hover:border-dark-600"
               >
                 Post
               </a>
@@ -56,23 +56,23 @@ export default function Navbar() {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {loading ? (
-              <div className="w-8 h-8 border-2 border-starlit border-t-transparent animate-spin"></div>
+              <div className="w-6 h-6 border-2 border-starlit border-t-transparent animate-spin"></div>
             ) : user ? (
               <>
                 {/* User Info */}
-                <div className="hidden sm:flex items-center space-x-3 bg-dark-800 border-2 border-dark-600 px-4 py-2">
+                <div className="hidden sm:flex items-center space-x-2 bg-dark-800 border border-dark-600 px-3 py-1.5">
                   <div className="text-right">
-                    <div className="text-sm font-bold text-gray-200 uppercase">{user.name}</div>
-                    <div className="text-xs font-mono text-starlit">{ROLE_LABELS[user.role]}</div>
+                    <div className="text-xs font-semibold text-gray-200 uppercase">{user.name}</div>
+                    <div className="text-xs font-mono text-starlit opacity-75">{ROLE_LABELS[user.role]}</div>
                   </div>
                 </div>
 
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 bg-red-600 text-white font-bold uppercase text-sm border-2 border-red-600 hover:bg-transparent hover:text-red-600 transition"
+                  className="px-3 py-1.5 bg-red-600 text-white font-semibold uppercase text-xs border border-red-600 hover:bg-transparent hover:text-red-600 transition"
                 >
                   Exit
                 </button>
@@ -81,13 +81,13 @@ export default function Navbar() {
               <div className="flex items-center space-x-2">
                 <a
                   href="/login"
-                  className="px-4 py-2 bg-transparent text-starlit font-bold uppercase text-sm border-2 border-starlit hover:bg-starlit hover:text-cosmic transition"
+                  className="px-3 py-1.5 bg-transparent text-starlit font-semibold uppercase text-xs border border-starlit hover:bg-starlit hover:text-cosmic transition"
                 >
                   Login
                 </a>
                 <a
                   href="/register"
-                  className="px-4 py-2 bg-starlit text-cosmic font-bold uppercase text-sm border-2 border-starlit hover:bg-transparent hover:text-starlit transition"
+                  className="px-3 py-1.5 bg-starlit text-cosmic font-semibold uppercase text-xs border border-starlit hover:bg-transparent hover:text-starlit transition"
                 >
                   Sign Up
                 </a>
