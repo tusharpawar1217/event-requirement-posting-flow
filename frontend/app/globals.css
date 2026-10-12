@@ -16,33 +16,68 @@ body {
 
 body {
   @apply bg-cosmic text-gray-100;
-  background-image: 
-    radial-gradient(ellipse at 20% 30%, rgba(77, 112, 136, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(212, 170, 152, 0.1) 0%, transparent 50%),
-    linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #2B313A 100%);
-  background-attachment: fixed;
+  background-color: #0F1115;
   min-height: 100vh;
 }
 
-/* Custom button styles */
+/* Sharp, Professional Design System */
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-secondary-500 to-starlit hover:from-secondary-600 hover:to-primary-300 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5;
+    @apply bg-starlit text-cosmic font-bold px-6 py-3 border-2 border-starlit hover:bg-transparent hover:text-starlit transition-all duration-200 uppercase tracking-wide;
   }
   
   .btn-secondary {
-    @apply bg-gradient-to-r from-starlit to-primary-300 hover:from-primary-300 hover:to-starlit text-cosmic font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5;
+    @apply bg-transparent text-starlit font-bold px-6 py-3 border-2 border-starlit hover:bg-starlit hover:text-cosmic transition-all duration-200 uppercase tracking-wide;
   }
   
-  .btn-neutral {
-    @apply bg-dark-600 hover:bg-dark-500 text-gray-300 font-semibold px-6 py-3 rounded-xl transition-colors duration-200 border border-dark-400;
+  .btn-danger {
+    @apply bg-red-600 text-white font-bold px-6 py-3 border-2 border-red-600 hover:bg-transparent hover:text-red-600 transition-all duration-200 uppercase tracking-wide;
   }
   
   .card {
-    @apply bg-gradient-to-br from-dark-700/90 to-dark-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-dark-600/50;
+    @apply bg-dark-800 border-2 border-dark-600 shadow-lg;
   }
   
-  .input-cosmic {
-    @apply bg-dark-800/50 border-dark-600 text-gray-100 placeholder-gray-500 focus:border-starlit focus:ring-starlit;
+  .card-highlight {
+    @apply bg-dark-800 border-2 border-starlit shadow-xl;
+  }
+  
+  .input-field {
+    @apply bg-dark-900 border-2 border-dark-600 text-gray-100 px-4 py-3 focus:border-starlit focus:outline-none transition-colors;
+  }
+  
+  .section-title {
+    @apply text-2xl font-black text-starlit uppercase tracking-wider border-l-4 border-starlit pl-4 mb-6;
+  }
+  
+  .badge {
+    @apply px-3 py-1 bg-dark-700 border border-dark-500 text-xs font-bold uppercase tracking-wide;
+  }
+  
+  .badge-primary {
+    @apply px-3 py-1 bg-starlit text-cosmic border border-starlit text-xs font-bold uppercase tracking-wide;
+  }
+  
+  .divider {
+    @apply border-t-2 border-dark-600 my-6;
   }
 }
+
+/* Remove all rounded corners */
+* {
+  border-radius: 0 !important;
+}
+
+/* Sharp shadows */
+.shadow-brutal {
+  box-shadow: 4px 4px 0px #D4AA98;
+}
+
+.shadow-brutal-lg {
+  box-shadow: 6px 6px 0px #D4AA98;
+}
+
+.shadow-dark {
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
