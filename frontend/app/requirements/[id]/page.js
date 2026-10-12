@@ -70,6 +70,9 @@ export default function RequirementDetailPage() {
 
   const isExpired = () => {
     const eventDate = new Date(requirement.eventDate);
+    // If invalid date, consider it expired
+    if (isNaN(eventDate.getTime())) return true;
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return eventDate < today;
@@ -77,6 +80,9 @@ export default function RequirementDetailPage() {
 
   const getDaysUntil = () => {
     const eventDate = new Date(requirement.eventDate);
+    // If invalid date, return negative to show expired
+    if (isNaN(eventDate.getTime())) return -999;
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diffTime = eventDate - today;
@@ -87,7 +93,8 @@ export default function RequirementDetailPage() {
   const getStatusBadge = () => {
     const daysUntil = getDaysUntil();
     
-    if (daysUntil < 0) {
+    // Invalid or expired dates
+    if (daysUntil < 0 || isNaN(daysUntil)) {
       return <span className="px-2 py-1 bg-red-900 text-red-300 border border-red-700 text-xs font-semibold uppercase">Expired</span>;
     } else if (daysUntil === 0) {
       return <span className="px-2 py-1 bg-yellow-900 text-yellow-300 border border-yellow-700 text-xs font-semibold uppercase">Today</span>;
