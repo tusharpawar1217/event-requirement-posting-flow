@@ -220,8 +220,16 @@ function BrowseContent() {
                 )}
 
                 <div className="mt-4 flex items-center justify-between">
-                  <div className="text-xs text-gray-500">
-                    Posted {formatDate(req.createdAt)}
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      👁️ {req.viewCount || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      💾 {req.saveCount || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      ⚡ {req.interestCount || 0}
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     {!isExpired(req.eventDate) && getDaysUntil(req.eventDate) <= 14 && (

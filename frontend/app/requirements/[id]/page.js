@@ -16,9 +16,15 @@ export default function RequirementDetailPage() {
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showInterestModal, setShowInterestModal] = useState(false);
+  const [interestMessage, setInterestMessage] = useState("");
+  const [interestContact, setInterestContact] = useState("");
+  const [submittingInterest, setSubmittingInterest] = useState(false);
+  const [similarEvents, setSimilarEvents] = useState([]);
 
   useEffect(() => {
     fetchRequirement();
+    fetchSimilarEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -32,6 +38,15 @@ export default function RequirementDetailPage() {
       setError(err.response?.data?.error?.message || "Failed to load");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSimilarEvents = async () => {
+    try {
+      const response = await api.get(`/requirements/${id}/similar`);
+      setSimilarEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to load similar events:", err);
     }
   };
 
@@ -50,9 +65,47 @@ export default function RequirementDetailPage() {
     }
   };
 
-  const handleSave = () => {
-    setSaved(!saved);
-    toast.success(saved ? "UNSAVED" : "SAVED");
+  const handleSave = async () => {
+    const newSavedState = !saved;
+    setSaved(newSavedState);
+    toast.success(newSavedState ? "SAVED" : "UNSAVED");
+    
+    try {
+      await api.post(`/requirements/${id}/save`, { saved: newSavedState });
+      // Update local count
+      setRequirement(prev => ({
+        ...prev,
+        saveCount: (prev.saveCount || 0) + (newSavedState ? 1 : -1)
+      }));
+    } catch (err) {
+      console.error("Save failed:", err);
+    }
+  };
+
+  const handleExpressInterest = async () => {
+    if (!user) {
+      toast.error("LOGIN REQUIRED");
+      router.push("/login");
+      return;
+    }
+
+    setSubmittingInterest(true);
+    try {
+      await api.post(`/requirements/${id}/interest`, {
+        message: interestMessage,
+        contact: interestContact || user.email
+      });
+      toast.success("INTEREST SUBMITTED!");
+      setShowInterestModal(false);
+      setInterestMessage("");
+      setInterestContact("");
+      fetchRequirement(); // Refresh to show updated count
+    } catch (err) {
+      const errorMsg = err.response?.data?.error?.message || "SUBMISSION FAILED";
+      toast.error(errorMsg);
+    } finally {
+      setSubmittingInterest(false);
+    }
   };
 
   const handleShare = () => {
@@ -323,7 +376,15 @@ export default function RequirementDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 text-sm">VIEWS</span>
-                  <span className="text-starlit font-bold">247</span>
+                  <span className="text-starlit font-bold">{requirement.viewCount || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-sm">SAVED</span>
+                  <span className="text-moonstone font-bold">{requirement.saveCount || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-sm">INTEREST</span>
+                  <span className="text-starlit font-bold">{requirement.interestCount || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 text-sm">STATUS</span>
@@ -337,6 +398,22 @@ export default function RequirementDetailPage() {
                 )}
               </div>
             </div>
+
+            {/* Express Interest Button */}
+            {!canEdit && (
+              <div className="card p-6 bg-starlit/5 border-starlit">
+                <h3 className="text-sm font-black text-starlit uppercase mb-3">INTERESTED?</h3>
+                <button
+                  onClick={() => setShowInterestModal(true)}
+                  className="w-full btn-primary py-3"
+                >
+                  EXPRESS INTEREST
+                </button>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Get notified about this event
+                </p>
+              </div>
+            )}
 
             {/* Quick Info */}
             <div className="card p-6 bg-dark-900">
@@ -358,6 +435,95 @@ export default function RequirementDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Similar Events Section */}
+        {similarEvents.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-black text-gray-200 uppercase mb-4 border-b-2 border-dark-600 pb-2">
+              SIMILAR EVENTS
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {similarEvents.map((event) => (
+                <Link
+                  key={event._id}
+                  href={`/requirements/${event._id}`}
+                  className="card p-4 hover:border-starlit transition"
+                >
+                  <h3 className="font-bold text-gray-200 mb-2 text-sm line-clamp-2">
+                    {event.eventName}
+                  </h3>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>📍 {event.location}</div>
+                    <div>📅 {formatDate(event.eventDate)}</div>
+                  </div>
+                  <div className="mt-2 text-xs text-starlit font-bold">
+                    VIEW →
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Interest Modal */}
+        {showInterestModal && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="card max-w-md w-full p-6">
+              <h2 className="text-xl font-black text-starlit uppercase mb-4">EXPRESS INTEREST</h2>
+              <p className="text-gray-400 text-sm mb-4">
+                Send your interest to the event organizer. They'll be notified with your contact details.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                    Message (Optional)
+                  </label>
+                  <textarea
+                    value={interestMessage}
+                    onChange={(e) => setInterestMessage(e.target.value)}
+                    placeholder="Tell them why you're interested..."
+                    className="w-full bg-dark-800 border-2 border-dark-600 text-gray-200 px-3 py-2 text-sm focus:border-starlit outline-none resize-none"
+                    rows={4}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                    Contact (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={interestContact}
+                    onChange={(e) => setInterestContact(e.target.value)}
+                    placeholder={user?.email || "Your email or phone"}
+                    className="w-full bg-dark-800 border-2 border-dark-600 text-gray-200 px-3 py-2 text-sm focus:border-starlit outline-none"
+                  />
+                  <p className="text-xs text-gray-600 mt-1">
+                    Defaults to your account email
+                  </p>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={handleExpressInterest}
+                    disabled={submittingInterest}
+                    className="flex-1 btn-primary py-2"
+                  >
+                    {submittingInterest ? "SUBMITTING..." : "SUBMIT INTEREST"}
+                  </button>
+                  <button
+                    onClick={() => setShowInterestModal(false)}
+                    disabled={submittingInterest}
+                    className="px-4 py-2 bg-dark-800 border-2 border-dark-600 text-gray-300 hover:border-gray-500 transition"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

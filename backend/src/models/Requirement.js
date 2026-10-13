@@ -28,7 +28,19 @@ const baseSchema = new mongoose.Schema(
       type: String, 
       default: 'open',
       enum: ['open', 'closed', 'in-progress']
-    }
+    },
+    // NEW UNIQUE FEATURES
+    viewCount: { type: Number, default: 0 },
+    saveCount: { type: Number, default: 0 },
+    interestCount: { type: Number, default: 0 },
+    interestedUsers: [{ 
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      interestedAt: { type: Date, default: Date.now },
+      message: String,
+      contact: String
+    }],
+    featured: { type: Boolean, default: false },
+    verified: { type: Boolean, default: false }
   },
   { 
     timestamps: true,
